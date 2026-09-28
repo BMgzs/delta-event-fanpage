@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About</title>
+<style>
+  @font-face {
+    font-family: '战术粗体';
+    src: url('战术粗体.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --bg: #fff;
+    --text: #222;
+    --text-sub: #555;
+    --accent: #2a70bf;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  body {
+    font-family: '战术粗体', 'Microsoft YaHei', 'PingFang SC', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 56px 20px 32px;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 简单图形：小方块 */
+  .mark {
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-size: 30px;
+    letter-spacing: 3px;
+    color: var(--text);
+    font-weight: normal;
+  }
+
+  .divider {
+    width: 48px;
+    height: 3px;
+    background: var(--accent);
+    margin: 20px 0 40px;
+  }
+
+  .intro {
+    font-size: 18px;
+    color: var(--text);
+    text-align: center;
+    max-width: 640px;
+    margin-bottom: 36px;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .info a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 16px;
+  }
+
+  .info a:hover {
+    text-decoration: underline;
+  }
+
+  .note {
+    color: var(--text-sub);
+    font-size: 15px;
+    margin-top: 6px;
+  }
+
+  /* 强调色按钮 */
+  .btn {
+    display: inline-block;
+    margin-top: 44px;
+    padding: 13px 38px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-decoration: none;
+  }
+
+  .btn:hover {
+    opacity: 0.88;
+  }
+
+  /* 底部 */
+  footer {
+    margin-top: auto;
+    padding-top: 60px;
+    width: 100%;
+    max-width: 720px;
+    text-align: center;
+  }
+
+  footer p {
+    color: var(--text-sub);
+    font-size: 13px;
+    line-height: 1.9;
+  }
+</style>
+</head>
+<body>
+
+  <div class="mark"></div>
+  <h1>About</h1>
+  <div class="divider"></div>
+
+  <p class="intro">由粉丝群体制作的哈夫克员工官网二创项目网站</p>
+
+  <div class="info">
+    <a href="https://b23.tv/Fuec4fh" target="_blank" rel="noopener">制作者: CNBMgzs</a>
+    <a href="https://b23.tv/GaImPVy" target="_blank" rel="noopener">图片提供/特别致谢: 哈夫克集团公关部门</a>
+    <p class="note">网站包含 AI 生成内容</p>
+  </div>
+
+  <a class="btn" href="https://haavkwebsite.rth1.xyz/index.html">跳转主页面</a>
+
+  <footer>
+    <p>网站所使用的游戏图片、素材，版权归腾讯公司所有，仅用于非商业展示和游戏资料参考。<br>网站数据皆来源于《三角洲行动》官方公开内容，若权利人认定存在侵权，可立即联系我们删除，本网站会及时处理。</p>
+  </footer>
+
+</body>
+</html>

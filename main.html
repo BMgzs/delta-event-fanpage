@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1600,initial-scale=1">
+<title>HAAVK</title>
+<style>
+/* ===================== 字体 ===================== */
+@font-face{
+  font-family:'战术粗体';
+  src:url('战术粗体.ttf') format('truetype');
+  font-weight:normal;font-style:normal;font-display:swap;
+}
+
+/* ===================== 全局基础 ===================== */
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  font-family:'战术粗体','Microsoft YaHei','PingFang SC',sans-serif;
+  height:100vh;overflow:hidden;
+  display:flex;flex-direction:column;
+  background:#E4E7EA;color:#222;
+  letter-spacing:.3px;
+  font-size:19px;                    /* 全局基准字号 */
+}
+button{font-family:inherit;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#9AA6B4;border-radius:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+/* ===================== 登录界面 ===================== */
+#login{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;
+  background:linear-gradient(to bottom,#C6D3E4,#E4E7EA);
+  transition:opacity .5s ease;
+}
+#login.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+
+/* --- 左半：品牌大图 + 文字 --- */
+.login-left{
+  flex:0 0 50%;min-width:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:30px;
+  background:transparent;
+  border-right:none;
+}
+.login-logo{
+  width:min(300px,38vh);
+  height:min(300px,38vh);
+  display:block;
+}
+.login-brand{
+  font-size:45px;
+  color:#2A70BF;
+  letter-spacing:5px;
+  line-height:1;
+}
+
+/* --- 右半：终端登录表单 --- */
+.login-right{
+  flex:0 0 50%;min-width:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:0 60px;
+}
+.login-head{
+  width:100%;max-width:420px;
+  text-align:center;
+  color:#2A70BF;
+  font-size:20px;
+  letter-spacing:3px;
+  white-space:nowrap;
+  margin-bottom:64px;
+}
+.login-form{
+  width:100%;max-width:420px;
+  display:flex;flex-direction:column;
+}
+.login-label{
+  color:#333;
+  font-size:20px;
+  letter-spacing:1px;
+  margin-bottom:10px;
+}
+/* 蓝色矩形输入框 */
+.login-field{
+  background:#EEE;
+  border:2px solid #2A70BF;
+  padding:13px 18px;
+  display:flex;align-items:center;
+  font-size:20px;
+  margin-bottom:26px;
+  user-select:none;
+}
+.lf-id{color:#333;}
+.lf-dept{color:#555;margin-left:22px;font-size:19px;}
+.lf-check{margin-left:auto;color:#333;font-size:22px;line-height:1;}
+.lf-pwd{color:#333;letter-spacing:2px;font-size:22px;line-height:1;}
+
+/* 蓝色填充按钮 */
+.login-btn{
+  width:100%;
+  margin-top:8px;
+  padding:17px 0;
+  background:#2A70BF;
+  color:#EEE;
+  border:none;
+  font-size:22px;
+  letter-spacing:5px;
+  text-align:center;
+  cursor:pointer;
+  transition:background .2s;
+}
+.login-btn:hover{background:#1F5CA0;}
+.login-btn:active{background:#194C86;}
+
+/* ===================== 顶部导航栏 ===================== */
+.topbar{
+  flex:0 0 auto;
+  height:72px;                       /* 顶栏高度 */
+  padding:0 26px;                    /* 顶栏左右内边距 */
+  display:flex;align-items:center;justify-content:space-between;
+  background:#0000;
+  border-bottom:1px solid #0000;
+  position:relative;z-index:20;
+}
+.topbar-left{display:flex;align-items:center;gap:100px;}   /* 品牌与选项组间距 */
+.brand{font-size:28px;color:#2A70BF;letter-spacing:1px;}  /* 品牌字号 */
+.mainnav{display:flex;align-items:center;gap:100px;}       /* 选项之间的间距 */
+.mainnav a{
+  font-size:21px;                    /* 导航选项字号 */
+  color:#555;text-decoration:none;cursor:pointer;
+  padding:4px 2px;transition:color .18s;
+}
+.mainnav a:hover{color:#27C;}
+.mainnav a.active{color:#27C;}
+.topbar-right{
+  display:flex;align-items:center;gap:8px;
+  font-size:20px;                    /* 右上角文字字号 */
+  color:#555;
+}
+.attn-value{color:#555;font-size:16px;font-weight:bold;}   /* 注意力数值字号 */
+
+/* ===================== 页面容器 ===================== */
+.stage{flex:1 1 auto;position:relative;overflow:hidden;}
+.page{position:absolute;inset:0;display:none;flex-direction:column;}
+.page.active{display:flex;}
+
+/* 通用：左右分栏（内页布局） */
+.split{
+  display:flex;height:100%;min-height:0;
+  padding:32px;                      /* 内页四周外边距 */
+  gap:32px;                          /* 左右两栏间距 */
+}
+/* 通用：左侧 25% 说明面板 */
+.side-panel{
+  flex:0 0 25%;min-width:200px;
+  background:#FFF8;
+  padding:14px;                      /* 面板内边距 */
+  display:flex;flex-direction:column;min-height:0;
+}
+.side-title{
+  flex:0 0 auto;
+  color:#2C3639;font-size:16px;      /* 侧栏标题字号 */
+  padding-bottom:8px;                /* 标题与下划线间距 */
+  border-bottom:2px solid #2C3639;   /* 下划线 */
+  margin-bottom:14px;                /* 标题与内容间距 */
+}
+.side-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:6px;}
+.side-text{
+  color:#555;font-size:14px;         /* 侧栏正文字号 */
+  line-height:1.75;
+}
+
+/* 说明卡片 */
+.info-card{
+  background:#FFF8;
+  padding:14px 16px;                 /* 卡片内边距 */
+  margin-top:14px;                   /* 卡片之间的间距 */
+}
+.info-head{display:flex;align-items:center;gap:8px;}
+.info-head .ic{font-size:21px;}                              /* 图标字号 */
+.info-title{color:#333;font-size:16px;}                      /* 卡片标题字号 */
+.info-body{
+  color:#888;font-size:14px;         /* 卡片正文字号 */
+  line-height:1.6;margin-top:6px;
+}
+
+/* ===================== 关于我们 ===================== */
+#page-about{background:#FFFFFF;}
+
+/* --- 上半部分 55% --- */
+.about-top{
+  flex:0 0 55%;                      /* 上半部分高度占比 */
+  min-height:0;position:relative;overflow:hidden;
+  background:linear-gradient(to top right,#DADFE5,#9498A3);  /* 左下 → 右上 */
+}
+/* 横向滚动轮播 */
+.hscroll{
+  display:flex;height:100%;width:100%;
+  overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+}
+.hscroll::-webkit-scrollbar{display:none;}
+.hscroll > .slide{
+  flex:0 0 100%;width:100%;height:100%;
+  scroll-snap-align:start;position:relative;
+  padding:0 64px;                    /* 每屏左右内边距 */
+  display:flex;flex-direction:column;justify-content:center;
+}
+.slide .slogan{
+  font-size:clamp(36px,4vw,64px);    /* 标语字号： */
+  color:#000;line-height:1.15;
+}
+.slide .subtitle{
+  margin-top:18px;color:#555;
+  font-size:clamp(19px,1.15vw,23px); /* 副标题字号：最小19px，最大23px */
+}
+.slide .signature{
+  position:absolute;left:64px;bottom:58px;      /* 签名位置 */
+  font-family:'Segoe Script','Bradley Hand','Brush Script MT',cursive;
+  font-size:clamp(28px,2.4vw,42px);              /* 签名字号 */
+  color:#27C;
+}
+/* 正方形分页按钮 */
+.dots{
+  position:absolute;left:0;right:0;bottom:20px;  /* 距底部距离 */
+  display:flex;justify-content:center;gap:14px;  /* 按钮间距 */
+  z-index:5;
+}
+.dots button{
+  width:16px;height:16px;padding:0;              /* 按钮尺寸 */
+  border:2px solid #888;background:transparent;
+  cursor:pointer;transition:background .2s,border-color .2s;
+}
+.dots button.active{background:#27C;border-color:#27C;}
+
+/* ===== 关于我们：滚动页中的叠加图片 ===== */
+.slide .slide-img{
+  position:absolute;
+  right:0;                      /* 贴齐右边缘 */
+  top:0;
+  height:100%;                  /* 高度 = 滚动页高度 */
+  width:auto;                   /* 等比拉伸 */
+  z-index:0;                    /* 位于上半部分背景之上、下半部分标题（z-index:20）之下 */
+  pointer-events:none;
+  user-select:none;
+}
+/* 文字压在图片之上 */
+.slide .slogan,
+.slide .subtitle,
+.slide .signature{position:relative;z-index:1;}
+
+/* --- 下半部分 --- */
+/* ===================== 关于我们 · 下半部分 ===================== */
+.about-bottom{
+  flex:1 1 auto;min-height:0;
+  display:flex;
+  gap:70px;                    /* 左右两栏之间的间距 */
+  padding:0 70px 50px;              /* 左右外边距：卡片距窗口左右边缘 */
+  background:#222;             /* 左右背景合二为一（改这里） */
+  position:relative;           /* 标题绝对定位的基准 */
+}
+
+/* 左半：优秀员工 */
+.about-left{
+  flex:1 1 50%;min-width:0;
+  display:flex;flex-direction:column;
+  min-height:0;
+  position:relative;           /* 标题定位基准 */
+  background:transparent;      /* 不再单独设背景 */
+  padding:0;                   /* 去掉内边距，卡片可贴紧上下 */
+  overflow:visible;            /* 允许标题向上溢出 */
+}
+
+/* 右半：员工之声 */
+.about-right{
+  flex:1 1 50%;min-width:0;
+  display:flex;flex-direction:column;
+  min-height:0;
+  position:relative;
+  background:transparent;      /* 不再单独设背景 */
+  padding:0;
+  overflow:visible;
+}
+
+/* 两个标题：下边缘贴紧上下分界线，整体位于上半部分区域内 */
+.sec-title-dark{
+  position:absolute;
+  left:0;
+  bottom:100%;                 /* 底边贴紧下半部分顶边（分界线） */
+  margin:0;
+  font-size:25px;              /* 标题字号（改这里） */
+  white-space:nowrap;
+  z-index:20;                  /* 压在上半部分轮播之上 */
+  color:#000;                  /* 移到浅色区域后用深色，保证可见 */
+}
+.sec-title-light{
+  position:absolute;
+  left:0;
+  bottom:100%;                 /* 底边贴紧下半部分顶边（分界线） */
+  margin:0;
+  font-size:25px;              /* 标题字号（改这里） */
+  white-space:nowrap;
+  z-index:20;                  /* 压在上半部分轮播之上 */
+  color:#EEE;                  /* 移到浅色区域后用深色，保证可见 */
+}
+
+/* 卡片行：撑满整栏高度，上下贴紧分界线与底部 */
+.card-row{
+  flex:1 1 auto;min-height:0;
+  display:flex;
+  gap:14px;                    /* 卡片之间的间距 */
+}
+
+.about-right .card-row{
+  gap: 4px;   /* 员工之声卡片间距 */
+}
+
+/* 优秀员工卡片（内容样式保持原样） */
+.staff-card{
+  position:relative;flex:1 1 0;min-width:0;min-height:0;
+  background:#DDD;overflow:hidden;
+  padding:18px 22px;           /* 卡片内文字与卡片边缘的距离 */
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.staff-card::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to right,#27CF,#27C0);
+}
+.staff-card > *{position:relative;z-index:1;}
+.staff-card .s-name{color:#EEE;font-size:28px;}
+.staff-card .s-role{color:#EEE;font-size:18px;opacity:.9;margin-top:4px;}
+.staff-card .s-slogan{color:#EEE;font-size:20px;line-height:1.5;}
+
+/* 员工之声卡片（内容样式保持原样） */
+.voice-card{
+  background:#555;
+  flex:1 1 0;min-width:0;min-height:0;
+  padding:12px 18px;
+  display:flex;flex-direction:column;
+}
+.voice-card .v-name{color:#EEE;font-size:22px;}
+.voice-card .v-dept{color:#777;font-size:18px;margin-top:2px;}
+.voice-card .v-slogan{color:#777;font-size:18px;margin-top:auto;padding-top:8px;}
+/* ===================== 论坛 / 解决方案 / 寻人启事 公共背景 ===================== */
+#page-forum,#page-solutions,#page-missing{
+  background:linear-gradient(to bottom,#BECFE3,#E9EBED);
+}
+
+/* ===================== 员工论坛 ===================== */
+.table-panel{
+  flex:1 1 auto;min-width:0;
+  display:flex;flex-direction:column;min-height:0;
+}
+.table-head{
+  flex:0 0 auto;
+  display:flex;align-items:center;
+  padding:12px 18px;                 /* 表头内边距 */
+  background:#FFF0;
+  color:#2C3639;font-size:15px;      /* 表头字号 */
+  font-weight:bold;
+}
+.table-body{
+  flex:1 1 auto;min-height:0;overflow-y:auto;
+  margin-top:10px;                   /* 表头与列表间距 */
+}
+.table-row{
+  display:flex;align-items:center;
+  padding:18px 18px;                 /* 每行内边距 */
+  margin-bottom:0;                   /* 取消原 1px 间距，改为分割线分隔 */
+  background:#FFF0;
+  font-size:14px;                    /* 帖子行字号 */
+  transition:background .15s;
+  border-bottom:2px solid #27C;      /* 行间 3px #27C 分割线 */
+}
+.table-row:last-child{border-bottom:none;}   /* 最后一行不画线（不需要可删掉这行） */
+.table-row:hover{background:#FFFFFFE6;}
+.c-title{flex:0 0 45%;color:#333;}
+.c-author{flex:0 0 30%;color:#666;}
+.c-reply{flex:0 0 10%;color:#27C;}
+.c-last{flex:1 1 auto;color:#888;}
+
+/* ===================== 解决方案 ===================== */
+.sol-right{
+  flex:1 1 auto;min-width:0;
+  display:flex;flex-direction:column;min-height:0;
+}
+/* 上方 30% 产品展示 */
+.sol-top{
+  flex:0 0 30%;                      /* 上方高度占比 */
+  min-height:180px;
+  position:relative;overflow:hidden;
+  background:#3A4048;
+}
+.sol-slide{
+  flex:0 0 100%;width:100%;height:100%;
+  scroll-snap-align:start;position:relative;
+  padding:16px 26px 38px;            /* 产品屏内边距（底部留给分页按钮） */
+  display:flex;flex-direction:column;
+}
+.prod-head{align-self:flex-end;text-align:right;}   /* 右上对齐 */
+.prod-head h3{
+  color:#FFF;
+  font-size:clamp(24px,1.9vw,32px);  /* 产品名称字号 */
+}
+.prod-head p{
+  color:#27C;
+  font-size:18px;                    /* 产品副标题字号 */
+  margin-top:6px;
+}
+
+/* 三组特性矩形：无背景、字体右下靠齐、宽度不等分 */
+.sol-feats{
+  display:flex;
+  gap:26px;                          /* 矩形之间的间距 */
+  margin-top:auto;
+  justify-content:flex-end;          /* 整体靠右 */
+  align-items:flex-end;              /* 整体靠底 */
+}
+.sol-feat{
+  flex:0 0 auto;                     /* 宽度由内容决定，不三等分 */
+  background:transparent;            /* 不要背景填充 */
+  padding:0;                         /* 无内边距 */
+  text-align:right;                  /* 文字右对齐 */
+}
+.sol-feat h4{
+  color:#888;
+  font-size:15px;                    /* 特性标题字号 */
+}
+.sol-feat p{
+  color:#555;
+  font-size:12px;                    /* 特性描述字号 */
+  margin-top:4px;line-height:1.5;
+}
+/* 下方购买区（后续填充） */
+.sol-bottom{
+  flex:1 1 auto;min-height:0;
+  margin-top:22px;                   /* 与上方产品区的间距 */
+  background:#FFF8;
+  padding:20px;
+  overflow-y:auto;
+  display:flex;align-items:center;justify-content:center;
+  color:#888;font-size:20px;         /* 占位文字字号 */
+}
+
+/* ===================== 寻人启事 ===================== */
+.miss-right{
+  flex:1 1 auto;min-width:0;
+  display:flex;
+  flex-direction:row;                /* 横向并排 */
+  gap:22px;                          /* 两张启事卡间距 */
+  min-height:0;overflow:hidden;
+}
+/* 启事卡：去掉内边距，让标题栏能横跨整卡 */
+.miss-card{
+  position:relative;
+  flex:1 1 0;min-width:0;min-height:0;
+  background:#555;overflow:hidden;
+  padding:0;                         /* 改为0，标题栏可全宽 */
+  display:flex;flex-direction:column;
+}
+.miss-card::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to right,#27CF,#27C0);  /* 左实右透明 */
+}
+.miss-card > *{position:relative;z-index:1;}
+/* 深色标题栏：横跨整个卡片顶部 */
+.miss-tag{
+  flex:0 0 auto;
+  width:100%;
+  background:#134;                   /* 深色标题栏背景（改这里） */
+  padding:14px 24px;                 /* 标题栏内边距（改这里） */
+  display:flex;align-items:center;justify-content:center;  /* 居中 */
+  position:relative;overflow:hidden;
+}
+/* 图标：居中放大、半透明，作为文字底衬 */
+.tag-icon{
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  font-size:42px;                    /* 底衬图标字号（改这里） */
+  color:#FFF2;                       /* 图标透明度/颜色 */
+  line-height:1;
+  pointer-events:none;
+}
+/* 特征文字：叠加在图标上方、居中 */
+.tag-text{
+  position:relative;z-index:1;
+  color:#FFF8;                       /* 特征文字颜色 */
+  font-size:20px;                    /* 特征文字字号（改这里） */
+  letter-spacing:4px;                /* 字间距 */
+  text-align:center;
+}
+/* 卡片内容区：接管原来的内边距与布局 */
+.miss-body{
+  flex:1 1 auto;min-height:0;
+  padding:40px 30px;                 /* 内容区四周内边距（改这里） */
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+/* 以下保持原样，不需要改 */
+.miss-info h3{color:#FFF;font-size:32px;}
+.miss-info p{color:#FFF;font-size:19px;margin-top:6px;}
+.reward-label{color:#FFF;font-size:18px;}
+.reward-value{color:#FFF;font-size:28px;margin:4px 0 14px;}
+/* 图标：作为背景层，与文字叠在同一格 */
+.tag-icon{
+  grid-area:1/1;               /* 与文字重叠在同一格 */
+  width:auto;height:auto;      /* 取消原来的固定方块 */
+  background:transparent;      /* 去掉深色方块底 */
+  color:#FFFFFF26;             /* 半透明图标，不抢文字，改这里调透明度 */
+  font-size:34px;              /* 图标大小，改这里 */
+  display:grid;
+  place-items:center;
+  pointer-events:none;         /* 不影响文字层交互 */
+}
+/* 特征文字：叠加在图标上方，居中 */
+.tag-text{
+  grid-area:1/1;               /* 与图标重叠在同一格 */
+  position:relative;
+  z-index:1;                   /* 保证文字在图标上层 */
+  color:#FFF;                  /* 文字颜色 */
+  font-size:17px;              /* 文字大小，改这里 */
+  letter-spacing:3px;          /* 字间距，改这里 */
+  text-align:center;
+  padding:0 8px;               /* 文字左右留白，避免贴边 */
+}
+.miss-info h3{color:#FFF;font-size:38px;}                    /* 姓名字号 */
+.miss-info p{color:#FFF;font-size:18px;margin-top:6px;}      /* 描述字号 */
+.reward-label{color:#FFF;font-size:20px;}                    /* 奖励标签字号 */
+.reward-value{color:#FFF;font-size:40px;margin:4px 0 14px;}  /* 奖励数值字号 */
+/* 提供线索按钮：按下前 */
+.clue-btn{
+  background:#FFF;color:#27C;
+  border:none;padding:10px 100px;     /* 按钮内边距 */
+  font-size:20px;                    /* 按钮文字字号 */
+  cursor:pointer;
+  transition:background .2s,color .2s;
+}
+.clue-btn:hover{background:#EAF3FB;}
+/* 提供线索按钮：按下后 */
+.clue-btn.done{
+  background:#3336;color:#FFF6;cursor:default;
+}
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+  <symbol id="icon-haavk" viewBox="0 0 12.7 12.7">
+    <g transform="matrix(0.98461525,0,0,0.98461525,0.48842154,0.97692415)">
+      <path style="fill:#2a70bf;fill-opacity:1;stroke-width:0;paint-order:stroke fill markers"
+            d="M 0,5.9531251 3.9687501,1.984375 V 9.4257814 L 4.9609376,8.4335939 v -9.42578141 l 1.984375,1.98437502 V 6.9453126 L 3.9687501,9.9218751 Z" />
+      <path style="fill:#2a70bf;fill-opacity:1;stroke-width:0;paint-order:stroke fill markers"
+            d="M 11.906251,5.9531264 7.9375006,1.9843763 V 6.9453126 L 4.9609376,9.9218751 V 10.914063 L 5.9531251,11.90625 6.9453126,10.914063 V 8.4335939 l 0.992188,-0.9921875 v 2.4804697 z" />
+    </g>
+  </symbol>
+</svg>
+
+<!-- ===================== 登录界面 ===================== -->
+<div id="login">
+  <!-- 左半：品牌大图 + 文字 -->
+  <div class="login-left">
+    <svg class="login-logo" viewBox="0 0 12.7 12.7" aria-hidden="true"><use href="#icon-haavk"/></svg>
+    <div class="login-brand">HAAVK</div>
+  </div>
+
+  <!-- 右半：终端登录表单 -->
+  <div class="login-right">
+    <div class="login-head">——&nbsp;&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;&nbsp;哈夫克全域互联终端&nbsp;&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;&nbsp;——</div>
+
+    <div class="login-form">
+      <div class="login-label">员工账号</div>
+      <div class="login-field">
+        <span class="lf-id">HVK-0451</span>
+        <span class="lf-dept">信息安全保卫部</span>
+        <span class="lf-check">✔</span>
+      </div>
+
+      <div class="login-label">密码</div>
+      <div class="login-field">
+        <span class="lf-pwd">················</span>
+      </div>
+
+      <button class="login-btn" id="loginBtn" type="button">接入职业生涯</button>
+    </div>
+  </div>
+</div>
+
+<!-- 背景音乐（点击登录后循环播放，音量100%） -->
+<audio id="bgm" loop preload="auto"
+  src="https://m10.music.126.net/20260925220917/12c73de98c25bbf65eafa384fbe73907/ymusic/obj/w5zDlMODwrDDiGjCn8Ky/83198616874/533b/363f/e49c/357dbd0f34f7db9e2c073a654c2e400a.mp3?vuutv=FqmT3ahmEc7r7k9psAZNZ/mVuD8+q8jXBmVmJK735MyrOEaQWmpeAGkoWKkdwOYwwf6iK3jbJxESV+u0UUpYCXghRty9av0Nc9ZpQb8h35k=&cdntag=bWFyaz1vc193ZWI"></audio>
+
+<!-- ===================== 顶部导航栏 ===================== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="brand"><svg class="ico-haavk" width="24" height="24" aria-hidden="true"><use href="#icon-haavk"/></svg>HAAVK</span>
+    <nav class="mainnav">
+      <a data-page="about" class="active">关于我们</a>
+      <a data-page="forum">员工论坛</a>
+      <a data-page="solutions">解决方案</a>
+      <a data-page="missing">寻人启事</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span>※注意力点数</span>
+    <span class="attn-value" id="attentionValue">50</span>
+  </div>
+</div>
+
+<!-- ===================== 页面舞台 ===================== -->
+<div class="stage">
+
+  <!-- ========================= 关于我们 ========================= -->
+  <section class="page active" id="page-about">
+
+    <!-- 上半部分 55%：横向滚动页面 -->
+    <div class="about-top">
+      <div class="hscroll" id="aboutCarousel">
+
+        <!-- 页面 1 -->
+        <div class="slide">
+          <img class="slide-img" src="https://bee-reg-ab.imagency.cn/mr/6700/26/047f424e07ae1dfefd35eda19ef6e6e5.png" alt="1790595982046">
+          <h2 class="slogan">效率，铸就未来</h2>
+          <p class="subtitle">让每一项资源归于效率，让每一个变量服从未来。</p>
+          <div class="signature">Hudson</div>
+        </div>
+
+        <!-- 页面 2 -->
+        <div class="slide">
+          <img class="slide-img" src="https://bee-reg-ab.imagency.cn/mr/6700/26/684db41d73a43e4cf2733d00d4cbe176.png" alt="1790596020237">
+          <h2 class="slogan">力量，服务于人</h2>
+          <p class="subtitle">守护大家，为效率发展保驾护航。</p>
+          <div class="signature">Desmonlins</div>
+        </div>
+
+        <!-- 页面 3 -->
+        <div class="slide">
+          <img class="slide-img" src="https://bee-reg-ab.imagency.cn/mr/6700/26/09cc45e8018321c8176aaa3792d336fc.png" alt="1790596089087">
+          <h2 class="slogan">进步，始于认知</h2>
+          <p class="subtitle">连接神经，重塑认知，个体之智汇成文明之智。</p>
+        </div>
+      </div>
+
+      <!-- 正方形分页按钮 -->
+      <div class="dots" id="aboutDots">
+        <button class="active" type="button"></button>
+        <button type="button"></button>
+        <button type="button"></button>
+      </div>
+    </div>
+
+    <!-- 下半部分 -->
+    <div class="about-bottom">
+
+      <!-- 左半：优秀员工（卡片横向并排） -->
+      <div class="about-left">
+        <h3 class="sec-title-dark">| 优秀员工</h3>
+
+        <div class="card-row">
+          <div class="staff-card">
+            <div>
+              <div class="s-name">克莱尔</div>
+              <div class="s-role">无情突击兵</div>
+            </div>
+            <div class="s-slogan">没有私情<br>只有对集团目标<br>绝对执行</div>
+          </div>
+
+          <div class="staff-card">
+            <div>
+              <div class="s-name">莉娜</div>
+              <div class="s-role">私享医疗专家</div>
+            </div>
+            <div class="s-slogan">私域尖端医护<br></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右半：员工之声（卡片横向并排） -->
+      <div class="about-right">
+        <h3 class="sec-title-light">| 员工之声</h3>
+
+        <div class="card-row">
+          <div class="voice-card">
+            <div class="v-name">磐石</div>
+            <div class="v-dept">工程部门</div>
+            <div class="v-slogan">不问工资多...</div>
+          </div>
+
+          <div class="voice-card">
+            <div class="v-name">夜枭</div>
+            <div class="v-dept">情报部门</div>
+            <div class="v-slogan">理解的要执行...</div>
+          </div>
+
+          <div class="voice-card">
+            <div class="v-name">雷霆</div>
+            <div class="v-dept">安保部门</div>
+            <div class="v-slogan">你们被包围了...</div>
+          </div>
+
+          <div class="voice-card">
+            <div class="v-name">真理</div>
+            <div class="v-dept">宣传部门</div>
+            <div class="v-slogan">没有神秘的力量...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================= 员工论坛 ========================= -->
+  <section class="page" id="page-forum">
+    <div class="split">
+
+      <!-- 左侧 25% 说明面板 -->
+      <aside class="side-panel">
+        <h2 class="side-title">员工论坛</h2>
+        <div class="side-scroll">
+          <p class="side-text">
+            所有的发言都必须扣除员工个人账户中相应的注意力点数。<br>
+            注意力点数不足者禁止继续使用论坛，违者按无故旷工效能部严办。<br><br>
+            请注意维护符合集团价值的舆论导向，曼德尔砖智能系统将自动检测当前舆情的主要特点并总结如下：
+          </p>
+
+          <div class="info-card">
+            <div class="info-head"><span class="ic"><svg class="ico-haavk" width="24" height="24" aria-hidden="true"><use href="#icon-haavk"/></svg></span><span class="info-title">人效调和</span></div>
+            <div class="info-body">在人本关切与执行效率之间，<br>我们正努力寻找平衡。</div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-head"><span class="ic"><svg class="ico-haavk" width="24" height="24" aria-hidden="true"><use href="#icon-haavk"/></svg></span><span class="info-title">有限接触</span></div>
+            <div class="info-body">与阿萨拉的合作是权益手段，<br>对阿萨拉的警惕是长期原则。</div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-head"><span class="ic">📃</span><span class="info-title">议论沸腾</span></div>
+            <div class="info-body">论坛讨乱已经在全集团沸腾，<br>表达意见成了新的业务。</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 右侧帖子表格（可上下滚动） -->
+      <div class="table-panel">
+        <div class="table-head">
+          <span class="c-title">标题</span>
+          <span class="c-author">发帖人</span>
+          <span class="c-reply">回复</span>
+          <span class="c-last">最后回复</span>
+        </div>
+
+        <div class="table-body" id="forumList">
+          <!-- 帖子行：后续由 JS / 后端填充数据 -->
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+          <div class="table-row">
+            <span class="c-title">###标题</span>
+            <span class="c-author">###发帖人</span>
+            <span class="c-reply">999</span>
+            <span class="c-last">###最后回复</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================= 解决方案 ========================= -->
+  <section class="page" id="page-solutions">
+    <div class="split">
+
+      <!-- 左侧 25% 说明面板 -->
+      <aside class="side-panel">
+        <h2 class="side-title">解决方案</h2>
+        <div class="side-scroll">
+          <p class="side-text">
+            集团员工有义务在执行勤务时自费购买集团装备。<br>
+            所有员工严禁使用来自第三方的不可靠装备。<br><br>
+            集团致力于持续研发优质产品。为复杂的战场提供丰富的解决方案。
+          </p>
+
+          <div class="info-card">
+            <div class="info-head"><span class="ic">🔫</span><span class="info-title">军工品质</span></div>
+            <div class="info-body">哈夫克制品总能经受战火的<br>考验</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 右侧 -->
+      <div class="sol-right">
+
+        <!-- 上方 30%：产品横向滚动 -->
+        <div class="sol-top">
+          <div class="hscroll" id="solCarousel">
+
+            <!-- 产品页 1 -->
+            <div class="sol-slide">
+              <div class="prod-head">
+                <h3>MHS战术头盔</h3>
+                <p>长官的指令就戴在您头上</p>
+              </div>
+              <div class="sol-feats">
+                <div class="sol-feat"><h4>冲击缓释</h4><p>保护头耳安全</p></div>
+                <div class="sol-feat"><h4>主动听觉</h4><p>强化关键声音</p></div>
+                <div class="sol-feat"><h4>强制通信</h4><p>确保收到命令</p></div>
+              </div>
+            </div>
+
+            <!-- 产品页 2 -->
+            <div class="sol-slide">
+              <div class="prod-head">
+                <h3>HVK-2防弹护甲</h3>
+                <p>优秀员工最好的勋章</p>
+              </div>
+              <div class="sol-feats">
+                <div class="sol-feat"><h4>精英特权</h4><p>业绩全优者有机会申领</p></div>
+                <div class="sol-feat"><h4>极限负重</h4><p>全面磨练员工身心毅力</p></div>
+                <div class="sol-feat"><h4>安全无虞</h4><p>搭配人身保险组合销售</p></div>
+              </div>
+            </div>
+
+            <!-- 产品页 3 -->
+            <div class="sol-slide">
+              <div class="prod-head">
+                <h3>图灵砖</h3>
+                <p>究极的智能造物只为进步</p>
+              </div>
+              <div class="sol-feats">
+                <div class="sol-feat"><h4>全域联通</h4><p>覆盖一切需要进步的区域</p></div>
+                <div class="sol-feat"><h4>随机算法</h4><p>概率云带来未知惊喜</p></div>
+                <div class="sol-feat"><h4>在线换代</h4><p>集团定制更新服务内容</p></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 正方形分页按钮 -->
+          <div class="dots" id="solDots">
+            <button class="active" type="button"></button>
+            <button type="button"></button>
+            <button type="button"></button>
+          </div>
+        </div>
+
+        <!-- 下方购买页面（后续填充） -->
+        <div class="sol-bottom">暂无解决方案</div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= 寻人启事 ========================= -->
+  <section class="page" id="page-missing">
+    <div class="split">
+
+      <!-- 左侧 25% 说明面板 -->
+      <aside class="side-panel">
+        <h2 class="side-title">寻人启事</h2>
+        <div class="side-scroll">
+          <p class="side-text">
+            为保障集团员工与阿萨拉地区居民安全，哈夫克集团对部分失联人员持续加以特别关注。<br>
+            集团员工或社会人士如能提供这些失联人士的有效信息，集团会发放合理的奖励。<br><br>
+            我们相信，每一位失联人员都有回家的权利。让我们一起献出爱心，伸出援手，帮他们早日回家。<br><br>
+            哈夫克集团保留对“回家”的全部解释权
+          </p>
+        </div>
+      </aside>
+
+      <!-- 右侧启事卡片（横向并排） -->
+      <div class="miss-right">
+
+        <!-- 启事 1 -->
+        <div class="miss-card">
+          <!-- 深色标题栏：横跨整卡顶部 -->
+          <div class="miss-tag">
+            <span class="tag-icon">☢</span>
+            <span class="tag-text">不善言语 神出鬼没</span>
+          </div>  
+          <!-- 卡片内容区 -->
+        <div class="miss-body">
+            <div class="miss-info">
+              <h3>H42</h3>
+              <p>亟需返回集团接受脑机康复训练</p>
+            </div>
+            <div class="miss-bottom">
+              <p class="reward-label">悬赏哈夫币总额</p>
+              <p class="reward-value">999,999,999</p>
+              <button class="clue-btn" type="button">提供线索</button>
+            </div>
+          </div>
+        </div>
+        <div class="miss-card">
+          <!-- 深色标题栏：横跨整卡顶部 -->
+          <div class="miss-tag">
+            <span class="tag-icon">☢</span>
+            <span class="tag-text">精瘦结实 暴躁冲动</span>
+          </div>  
+          <!-- 卡片内容区 -->
+        <div class="miss-body">
+            <div class="miss-info">
+              <h3>佐娅</h3>
+              <p>亟需集团帮助继续其科研工作</p>
+            </div>
+            <div class="miss-bottom">
+              <p class="reward-label">举报奖励</p>
+              <p class="reward-value">脑机实验受试资格</p>
+              <button class="clue-btn" type="button">提供线索</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ===================== 注意力点数变量 ===================== */
+let attentionPoints = 50;                     // 默认 50，后续可动态修改
+document.getElementById('attentionValue').textContent = attentionPoints;
+
+/* ===================== 登录界面 ===================== */
+const bgm = document.getElementById('bgm');
+bgm.loop   = true;                            // 循环播放
+bgm.volume = 1;                               // 音量 100%
+
+document.getElementById('loginBtn').addEventListener('click', () => {
+  // 1. 隐藏登录层，进入正常页面
+  document.getElementById('login').classList.add('hidden');
+
+  // 2. 开始循环播放背景音乐
+  bgm.play().catch(err => {
+    console.warn('音频播放被浏览器拦截：', err);
+  });
+});
+
+/* ===================== 顶部导航切换 ===================== */
+const navLinks = document.querySelectorAll('.mainnav a');
+const pages    = document.querySelectorAll('.page');
+
+navLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    navLinks.forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+    const targetId = 'page-' + link.dataset.page;
+    pages.forEach(p => p.classList.toggle('active', p.id === targetId));
+  });
+});
+
+/* ===================== 通用横向轮播（3秒自动切换 + 分页按钮联动） ===================== */
+function bindCarousel(scrollerId, dotsId) {
+  const scroller = document.getElementById(scrollerId);
+  const dotsWrap = document.getElementById(dotsId);
+  if (!scroller || !dotsWrap) return;
+
+  const buttons = Array.from(dotsWrap.querySelectorAll('button'));
+  const AUTO_MS = 3000;              // 自动切换间隔：3 秒
+  let autoTimer = null;
+
+  /* 同步分页按钮高亮 */
+  function sync() {
+    if (!scroller.clientWidth) return;
+    const idx = Math.min(
+      Math.round(scroller.scrollLeft / scroller.clientWidth),
+      buttons.length - 1
+    );
+    buttons.forEach((b, i) => b.classList.toggle('active', i === idx));
+  }
+
+  /* 切换到下一个页面 */
+  function goNext() {
+    // 页面隐藏（display:none）时宽度为 0，跳过本轮
+    if (!scroller.clientWidth) return;
+    const idx = Math.round(scroller.scrollLeft / scroller.clientWidth);
+    const next = (idx + 1) % buttons.length;
+    scroller.scrollTo({ left: scroller.clientWidth * next, behavior: 'smooth' });
+  }
+
+  /* 启动 / 重启自动轮播计时器 */
+  function startAuto() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(goNext, AUTO_MS);
+  }
+
+  /* 用户滚动时同步按钮，并重置计时器（避免手动与自动打架） */
+  scroller.addEventListener('scroll', () => requestAnimationFrame(sync), { passive: true });
+
+  /* 鼠标悬停暂停，移开继续 */
+  scroller.addEventListener('mouseenter', () => clearInterval(autoTimer));
+  scroller.addEventListener('mouseleave', startAuto);
+
+  /* 点击分页按钮：跳转并重置计时器 */
+  buttons.forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      scroller.scrollTo({ left: scroller.clientWidth * i, behavior: 'smooth' });
+      startAuto();
+    });
+  });
+
+  window.addEventListener('resize', sync);
+  sync();
+  startAuto();
+}
+bindCarousel('aboutCarousel', 'aboutDots');   // 关于我们轮播
+bindCarousel('solCarousel',  'solDots');      // 解决方案轮播
+
+/* ===================== 寻人启事：提供线索按钮 ===================== */
+document.querySelectorAll('.clue-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.classList.contains('done')) return;
+    btn.classList.add('done');
+    btn.textContent = '已提交';
+  });
+});
+</script>
+</body>
+</html>   
