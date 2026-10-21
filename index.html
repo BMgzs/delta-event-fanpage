@@ -118,31 +118,35 @@ button{font-family:inherit;}
 
 /* ===================== 顶部导航栏 ===================== */
 .topbar{
-  flex:0 0 auto;
+  position:fixed;                    /* 悬浮覆盖，不占布局高度 */
+  top:0;left:0;right:0;
   height:72px;                       /* 顶栏高度 */
   padding:0 26px;                    /* 顶栏左右内边距 */
   display:flex;align-items:center;justify-content:space-between;
-  background:#0000;
-  border-bottom:1px solid #0000;
-  position:relative;z-index:20;
+  background:transparent;            /* 去掉背景 */
+  border-bottom:none;                /* 去掉分割线 */
+  z-index:50;
+  pointer-events:none;               /* 空白处可穿透拖动轮播 */
 }
-.topbar-left{display:flex;align-items:center;gap:100px;}   /* 品牌与选项组间距 */
-.brand{font-size:28px;color:#2A70BF;letter-spacing:1px;}  /* 品牌字号 */
-.mainnav{display:flex;align-items:center;gap:100px;}       /* 选项之间的间距 */
+.topbar > *{pointer-events:auto;}    /* 文字区域仍可点击 */
+
+.topbar-left{display:flex;align-items:center;gap:100px;}
+.brand{font-size:28px;color:#2A70BF;letter-spacing:1px;}
+.mainnav{display:flex;align-items:center;gap:100px;}
 .mainnav a{
-  font-size:21px;                    /* 导航选项字号 */
+  font-size:21px;
   color:#555;text-decoration:none;cursor:pointer;
   padding:4px 2px;transition:color .18s;
 }
 .mainnav a:hover{color:#27C;}
 .mainnav a.active{color:#27C;}
+
 .topbar-right{
   display:flex;align-items:center;gap:8px;
-  font-size:20px;                    /* 右上角文字字号 */
+  font-size:20px;
   color:#555;
 }
-.attn-value{color:#555;font-size:16px;font-weight:bold;}   /* 注意力数值字号 */
-
+.attn-value{color:#555;font-size:16px;font-weight:bold;}
 /* ===================== 页面容器 ===================== */
 .stage{flex:1 1 auto;position:relative;overflow:hidden;}
 .page{position:absolute;inset:0;display:none;flex-direction:column;}
@@ -151,7 +155,7 @@ button{font-family:inherit;}
 /* 通用：左右分栏（内页布局） */
 .split{
   display:flex;height:100%;min-height:0;
-  padding:32px;                      /* 内页四周外边距 */
+  padding:104px 32px 32px;           /* 上边距 = 原32px + 顶栏72px */
   gap:32px;                          /* 左右两栏间距 */
 }
 /* 通用：左侧 25% 说明面板 */
@@ -754,102 +758,11 @@ button{font-family:inherit;}
         </div>
 
         <div class="table-body" id="forumList">
-          <!-- 帖子行：后续由 JS / 后端填充数据 -->
           <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
-          </div>
-          <div class="table-row">
-            <span class="c-title">###标题</span>
-            <span class="c-author">###发帖人</span>
-            <span class="c-reply">999</span>
-            <span class="c-last">###最后回复</span>
+            <span class="c-title">你们这个是什么网站啊, 怎么教小孩子玩游戏的真是害人不浅啊</span>
+            <span class="c-author"></span>
+            <span class="c-reply">31,958</span>
+            <span class="c-last">我要举报你们这个网站</span>
           </div>
         </div>
       </div>
