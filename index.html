@@ -1017,6 +1017,33 @@ document.querySelectorAll('.clue-btn').forEach(btn => {
     btn.textContent = '已提交';
   });
 });
+/* ===================== 网页图标 ===================== */
+const symbol = document.getElementById('icon-haavk');
+const NS = 'http://www.w3.org/2000/svg';
+
+// 包一层完整的 <svg>，把 symbol 的内容搬进去
+const svg = document.createElementNS(NS, 'svg');
+svg.setAttribute('xmlns', NS);
+svg.setAttribute('viewBox', symbol.getAttribute('viewBox'));
+
+symbol.childNodes.forEach(node => {
+  svg.appendChild(node.cloneNode(true));
+});
+
+// 序列化成 data URI
+const dataUri = 'data:image/svg+xml,' +
+  encodeURIComponent(new XMLSerializer().serializeToString(svg));
+
+// 写入或更新 favicon
+let link = document.querySelector('link[rel="icon"]');
+if (!link) {
+  link = document.createElement('link');
+  link.rel = 'icon';
+  document.head.appendChild(link);
+}
+link.type = 'image/svg+xml';
+link.href = dataUri;
+
 </script>
 </body>
 </html>   
