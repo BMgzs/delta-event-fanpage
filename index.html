@@ -1244,6 +1244,7 @@ const shopItems = [
     id: 'turing-brick',
     title: '图灵砖',
     desc: '搭载先进智能技术的先锋平台，随机算法蕴藏惊喜。',
+    tooltipInfo: '哈夫克科技出品，似乎与曼德尔砖的架构同根同源。目前已大量流入民用市场，其中秘密有待挖掘。',
     price: 100000,
     limit: 5,
     bought: 0,          // 已购买次数
@@ -1253,6 +1254,7 @@ const shopItems = [
     id: 'mhs-helmet',
     title: 'MHS战术头盔',
     desc: '冲击缓释、主动听觉、强制通信，长官的指令就戴在您头上。',
+    tooltipInfo: '为哈夫克经营设计的高级头盔。配备战术耳机，能提供良好的拾音与降噪能力。整体较重，会明显降低移动能力和操控性。符合4级防弹标准。',
     price: 120000,
     limit: 3,
     bought: 0,
@@ -1262,6 +1264,7 @@ const shopItems = [
     id: 'hvk-armor',
     title: 'HVK-2防弹护甲',
     desc: '精英特权、极限负重、安全无虞，优秀员工最好的勋章。',
+    tooltipInfo: '作为哈夫克公司最高级防护标准的第一代作品，符合5级防弹标准，但同时带来惊人的重量和严重的移动速度和武器操控性衰减。',
     price: 350000,
     limit: 2,
     bought: 0,
@@ -1314,10 +1317,11 @@ function renderShop() {
 
     const tooltip = document.createElement('div');
     tooltip.className = 'sol-detail-tooltip';
+    const tooltipText = item.tooltipInfo || item.desc;
     tooltip.innerHTML = `
       <div class="tooltip-title">${item.title}</div>
       <div class="tooltip-media"><img src="${item.img}" alt="${item.title}"></div>
-      <div class="tooltip-info">${item.desc}</div>
+      <div class="tooltip-info">${tooltipText}</div>
     `;
     link.appendChild(tooltip);
 
