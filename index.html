@@ -164,7 +164,7 @@ h1,h2,h3,h4,h5,h6,
   position:fixed;                    /* 悬浮覆盖，不占布局高度 */
   top:0;left:0;right:0;
   height:72px;                       /* 顶栏高度 */
-  padding:0 26px;                    /* 顶栏左右内边距 */
+  padding:0 60px;                    /* 顶栏左右内边距 */
   display:flex;align-items:center;justify-content:space-between;
   background:transparent;            /* 去掉背景 */
   border-bottom:none;                /* 去掉分割线 */
@@ -173,13 +173,54 @@ h1,h2,h3,h4,h5,h6,
 }
 .topbar > *{pointer-events:auto;}    /* 文字区域仍可点击 */
 
-.topbar-left{display:flex;align-items:center;gap:100px;}
-.brand{font-size:28px;color:#2A70BF;letter-spacing:1px;}
-.mainnav{display:flex;align-items:center;gap:100px;}
+.topbar-left{
+  display:flex;align-items:center;
+  gap:0;
+  flex:1 1 auto;
+  min-width:0;
+}
+.brand{
+  font-size:28px;
+  color:#2A70BF;
+  letter-spacing:1px;
+  white-space:nowrap;
+  flex:0 0 auto;
+  margin-right:40px;
+}
+.mainnav{
+  display:flex;align-items:center;
+  gap:0;
+  flex:1 1 auto;
+  width:100%;
+  min-width:0;
+}
 .mainnav a{
-  font-size:21px;
+  flex:1 1 0;
+  min-width:0;
+  text-align:center;
+  font-size:20px;
   color:#555;text-decoration:none;cursor:pointer;
   padding:4px 2px;transition:color .18s;
+  white-space:nowraping:1px;
+  white-space:nowrap;
+  flex:0 0 auto;
+  margin-right:40px;
+}
+.mainnav{
+  display:flex;align-items:center;
+  gap:0;
+  flex:1 1 auto;
+  width:100%;
+  min-width:0;
+}
+.mainnav a{
+  flex:1 1 0;
+  min-width:0;
+  text-align:center;
+  font-size:20px;
+  color:#555;text-decoration:none;cursor:pointer;
+  padding:4px 2px;transition:color .18s;
+  white-space:nowrap;
 }
 .mainnav a:hover{color:#27C;}
 .mainnav a.active{color:#27C;}
@@ -198,7 +239,7 @@ h1,h2,h3,h4,h5,h6,
 /* 通用：左右分栏（内页布局） */
 .split{
   display:flex;height:100%;min-height:0;
-  padding:104px 32px 32px;           /* 上边距 = 原32px + 顶栏72px */
+  padding:104px 60px 32px;           /* 上边距 = 原32px + 顶栏72px */
   gap:32px;                          /* 左右两栏间距 */
 }
 /* 通用：左侧 25% 说明面板 */
@@ -307,7 +348,7 @@ h1,h2,h3,h4,h5,h6,
   flex:1 1 auto;min-height:0;
   display:flex;
   gap:70px;                    /* 左右两栏之间的间距 */
-  padding:0 70px 50px;              /* 左右外边距：卡片距窗口左右边缘 */
+  padding:0 60px 50px;              /* 左右外边距：卡片距窗口左右边缘 */
   background:#222;             /* 左右背景合二为一（改这里） */
   position:relative;           /* 标题绝对定位的基准 */
 }
@@ -542,7 +583,74 @@ h1,h2,h3,h4,h5,h6,
   color:#555;font-size:15px;line-height:1.4;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.sol-item-link{color:#2A70BF;font-size:15px;cursor:pointer;}
+.sol-item-link{
+  position:relative;
+  display:inline-flex;
+  align-self:flex-start;
+  width:auto;
+  max-width:100%;
+  white-space:nowrap;
+  color:#2A70BF;
+  font-size:15px;
+  cursor:pointer;
+  padding-right:8px;
+}
+.sol-item-link:hover,
+.sol-item-link:focus-visible{
+  color:#1F5CA0;
+}
+
+.sol-detail-tooltip{
+  position:fixed;
+  left:0;
+  top:0;
+  width:300px;
+  height:400px;
+  background:#444;
+  color:#EEE;
+  box-shadow:0 10px 28px rgba(0,0,0,.22);
+  border:none;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .12s ease, visibility .12s ease;
+  z-index:999;
+}
+.sol-detail-tooltip.visible{
+  opacity:1;
+  visibility:visible;
+}
+.sol-detail-tooltip .tooltip-title{
+  padding:10px;
+  font-size:30px;
+  line-height:1.2;
+  color:#EEE;
+  background:#555;
+}
+.sol-detail-tooltip .tooltip-media{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:0 14px;
+  background:#333;
+}
+.sol-detail-tooltip .tooltip-media img{
+  display:block;
+  width:200px;
+  height:200px;
+  object-fit:cover;
+}
+.sol-detail-tooltip .tooltip-info{
+  height:calc(400px - 10px - 30px - 200px - 28px);
+  padding:16px 14px 14px;
+  background:#555;
+  color:#DDD;
+  font-size:16px;
+  line-height:1.5;
+  white-space:normal;
+  overflow:hidden;
+  word-break:break-word;
+}
 
 .sol-item-right{
   flex:0 0 auto;height:96px;
@@ -1199,7 +1307,61 @@ function renderShop() {
 
     const link = document.createElement('div');
     link.className = 'sol-item-link';
+    link.tabIndex = 0;
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-label', `查看 ${item.title} 的详情`);
     link.textContent = '物品详情》';
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'sol-detail-tooltip';
+    tooltip.innerHTML = `
+      <div class="tooltip-title">${item.title}</div>
+      <div class="tooltip-media"><img src="${item.img}" alt="${item.title}"></div>
+      <div class="tooltip-info">${item.desc}</div>
+    `;
+    link.appendChild(tooltip);
+
+    const placeTooltip = () => {
+      const rect = link.getBoundingClientRect();
+      const gap = 12;
+      const tooltipWidth = 300;
+      const tooltipHeight = 400;
+      let left = rect.right + gap;
+      let top = rect.top + rect.height / 2 - tooltipHeight / 2;
+
+      if (left + tooltipWidth > window.innerWidth - 12) {
+        left = rect.left - tooltipWidth - gap;
+      }
+      if (left < 12) left = 12;
+      if (top < 12) top = 12;
+      if (top + tooltipHeight > window.innerHeight - 12) {
+        top = window.innerHeight - tooltipHeight - 12;
+      }
+
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+    };
+
+    const showTooltip = () => {
+      placeTooltip();
+      tooltip.classList.add('visible');
+    };
+    const hideTooltip = () => tooltip.classList.remove('visible');
+    link.addEventListener('mouseenter', showTooltip);
+    link.addEventListener('mouseleave', hideTooltip);
+    link.addEventListener('focus', showTooltip);
+    link.addEventListener('blur', hideTooltip);
+    link.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (tooltip.classList.contains('visible')) {
+        hideTooltip();
+      } else {
+        showTooltip();
+      }
+    });
+    window.addEventListener('resize', () => {
+      if (tooltip.classList.contains('visible')) placeTooltip();
+    });
 
     main.append(head, desc, link);
 
