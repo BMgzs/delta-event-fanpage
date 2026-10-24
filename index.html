@@ -5,28 +5,71 @@
 <meta name="viewport" content="width=1600,initial-scale=1">
 <title>HAAVK</title>
 <style>
-/* ===================== 字体 ===================== */
+@font-face{
+  font-family:'战术体';
+  src:url('战术体.ttf') format('truetype');
+  font-weight:normal;
+  font-style:normal;
+  font-display:swap;
+}
 @font-face{
   font-family:'战术粗体';
   src:url('战术粗体.ttf') format('truetype');
-  font-weight:normal;font-style:normal;font-display:swap;
+  font-weight:bold;
+  font-style:normal;
+  font-display:swap;
 }
 
 /* ===================== 全局基础 ===================== */
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;}
 body{
-  font-family:'战术粗体','Microsoft YaHei','PingFang SC',sans-serif;
+  font-family:'战术体','Microsoft YaHei','PingFang SC',sans-serif;
+  font-weight:normal; /* 默认使用战术体 */
   height:100vh;overflow:hidden;
   display:flex;flex-direction:column;
   background:#E4E7EA;color:#222;
   letter-spacing:.3px;
-  font-size:19px;                    /* 全局基准字号 */
+  font-size:19px;
 }
 button{font-family:inherit;}
+
+/* 需要强调的文字改用战术粗体 */
+h1,h2,h3,h4,h5,h6,
+.brand,
+.login-left,
+.login-right,
+.mainnav a,
+.mainnav a.active,
+.side-title,
+.s-slogan,
+.v-slogan,
+.topbar-right,
+.subtitle,
+.sec-title-dark,
+.sec-title-light,
+.table-panel,
+.sol-item-title,
+.sol-item-limit,
+.sol-item-price,
+.miss-info h3,
+.reward-value,
+.tag-text,
+.s-name,
+.s-role,
+.v-name,
+.v-dept,
+.prod-head h3,
+.sol-feat h4,
+.reward-label,
+.clue-btn{
+  font-family:'战术粗体','Microsoft YaHei','PingFang SC',sans-serif;
+  font-weight:bold;
+}
 ::-webkit-scrollbar{width:8px;height:8px;}
 ::-webkit-scrollbar-thumb{background:#9AA6B4;border-radius:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
+
 
 /* ===================== 登录界面 ===================== */
 #login{
@@ -174,7 +217,7 @@ button{font-family:inherit;}
 }
 .side-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:6px;}
 .side-text{
-  color:#555;font-size:14px;         /* 侧栏正文字号 */
+  color:#555;font-size:20px;         /* 侧栏正文字号 */
   line-height:1.75;
 }
 
@@ -186,9 +229,9 @@ button{font-family:inherit;}
 }
 .info-head{display:flex;align-items:center;gap:8px;}
 .info-head .ic{font-size:21px;}                              /* 图标字号 */
-.info-title{color:#333;font-size:16px;}                      /* 卡片标题字号 */
+.info-title{color:#333;font-size:20px;}                      /* 卡片标题字号 */
 .info-body{
-  color:#888;font-size:14px;         /* 卡片正文字号 */
+  color:#888;font-size:18px;         /* 卡片正文字号 */
   line-height:1.6;margin-top:6px;
 }
 
@@ -406,6 +449,23 @@ button{font-family:inherit;}
   padding:16px 26px 38px;            /* 产品屏内边距（底部留给分页按钮） */
   display:flex;flex-direction:column;
 }
+/* ===== 产品展示：文字与背景之间的方形叠图 ===== */
+.sol-slide .sol-img{
+  position:absolute;
+  left:0;                           /* 卡片左半侧 */
+  top:100%;                         /* 图片下边缘贴住卡片下边缘 */
+  width:50%;                        /* 占据卡片左侧一半 */
+  height:auto;
+  aspect-ratio:1 / 1;               /* 1:1，高 = 宽 */
+  transform:translateY(-50%);        /* 图片中点落在卡片下边缘 */
+  object-fit:cover;
+  z-index:0;                        /* 背景之上、文字之下 */
+  pointer-events:none;
+  user-select:none;
+}
+/* 文字层压在图片之上 */
+.sol-slide .prod-head,
+.sol-slide .sol-feats{position:relative;z-index:1;}
 .prod-head{align-self:flex-end;text-align:right;}   /* 右上对齐 */
 .prod-head h3{
   color:#FFF;
@@ -440,16 +500,66 @@ button{font-family:inherit;}
   font-size:12px;                    /* 特性描述字号 */
   margin-top:4px;line-height:1.5;
 }
-/* 下方购买区（后续填充） */
+/* 下方购买列表（替换原来居中的“暂无解决方案”占位样式） */
 .sol-bottom{
   flex:1 1 auto;min-height:0;
   margin-top:22px;                   /* 与上方产品区的间距 */
   background:#FFF8;
   padding:20px;
   overflow-y:auto;
-  display:flex;align-items:center;justify-content:center;
-  color:#888;font-size:20px;         /* 占位文字字号 */
+  display:block;
 }
+
+.sol-list{
+  display:flex;flex-direction:column;
+  gap:16px;                          /* 单项间距 */
+}
+
+.sol-item{
+  height:128px;                      /* 单项高度 */
+  padding:16px;                      /* 内边距 */
+  display:flex;align-items:center;
+  gap:16px;
+  background:#FFF;
+}
+
+.sol-item-img{
+  flex:0 0 96px;
+  width:96px;height:96px;            /* 128 - 16*2 = 96，占满高度，1:1 */
+  object-fit:cover;
+  display:block;
+}
+
+.sol-item-main{
+  flex:1 1 auto;min-width:0;
+  height:96px;
+  display:flex;flex-direction:column;justify-content:space-between;  /* 左对齐 */
+}
+.sol-item-head{display:flex;align-items:baseline;gap:14px;}
+.sol-item-title{color:#111;font-size:22px;}
+.sol-item-limit{color:#2A70BF;font-size:16px;}
+.sol-item-desc{
+  color:#555;font-size:15px;line-height:1.4;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sol-item-link{color:#2A70BF;font-size:15px;cursor:pointer;}
+
+.sol-item-right{
+  flex:0 0 auto;height:96px;
+  display:flex;flex-direction:column;
+  align-items:flex-end;justify-content:space-between;   /* 右对齐 */
+}
+.sol-item-price{color:#111;font-size:20px;}
+
+.buy-btn{
+  background:#2A70BF;color:#EEE;
+  border:none;padding:8px 30px;
+  font-size:17px;cursor:pointer;
+  transition:background .2s;
+}
+.buy-btn:hover{background:#1F5CA0;}
+.buy-btn:active{background:#194C86;}
+.buy-btn:disabled{background:#555;color:#EEE;cursor:default;}  /* 满额后灰色且不可点击 */
 
 /* ===================== 寻人启事 ===================== */
 .miss-right{
@@ -797,9 +907,9 @@ button{font-family:inherit;}
         <!-- 上方 30%：产品横向滚动 -->
         <div class="sol-top">
           <div class="hscroll" id="solCarousel">
-
             <!-- 产品页 1 -->
             <div class="sol-slide">
+              <img class="sol-img" src='https://bee-reg-ab.imagency.cn/mr/202610/24/6adc12c346149.png' alt="MHS战术头盔">
               <div class="prod-head">
                 <h3>MHS战术头盔</h3>
                 <p>长官的指令就戴在您头上</p>
@@ -810,9 +920,9 @@ button{font-family:inherit;}
                 <div class="sol-feat"><h4>强制通信</h4><p>确保收到命令</p></div>
               </div>
             </div>
-
             <!-- 产品页 2 -->
             <div class="sol-slide">
+              <img class="sol-img" src='https://bee-reg-ab.imagency.cn/mr/202610/24/6adc1293bd496.png' alt="HVK-2防弹护甲">
               <div class="prod-head">
                 <h3>HVK-2防弹护甲</h3>
                 <p>优秀员工最好的勋章</p>
@@ -826,6 +936,7 @@ button{font-family:inherit;}
 
             <!-- 产品页 3 -->
             <div class="sol-slide">
+              <img class="sol-img" src='https://bee-reg-ab.imagency.cn/mr/202610/24/6adc146bc46b2.png' alt="图灵砖">
               <div class="prod-head">
                 <h3>图灵砖</h3>
                 <p>究极的智能造物只为进步</p>
@@ -846,9 +957,10 @@ button{font-family:inherit;}
             <button type="button"></button>
           </div>
         </div>
-
-        <!-- 下方购买页面（后续填充） -->
-        <div class="sol-bottom">暂无解决方案</div>
+        <!-- 下方购买列表 -->
+        <div class="sol-bottom">
+          <div class="sol-list" id="solList"></div>
+        </div>
 
       </div>
     </div>
@@ -1017,6 +1129,112 @@ document.querySelectorAll('.clue-btn').forEach(btn => {
     btn.textContent = '已提交';
   });
 });
+/* ===================== 解决方案：购买列表 ===================== */
+/* 购买次数存于 shopItems 数组，后续新增商品直接往数组里 push 即可 */
+const shopItems = [
+  {
+    id: 'turing-brick',
+    title: '图灵砖',
+    desc: '搭载先进智能技术的先锋平台，随机算法蕴藏惊喜。',
+    price: 100000,
+    limit: 5,
+    bought: 0,          // 已购买次数
+    img: 'https://bee-reg-ab.imagency.cn/mr/202610/24/6adc146bc46b2.png'
+  },
+  {
+    id: 'mhs-helmet',
+    title: 'MHS战术头盔',
+    desc: '冲击缓释、主动听觉、强制通信，长官的指令就戴在您头上。',
+    price: 120000,
+    limit: 3,
+    bought: 0,
+    img: 'https://bee-reg-ab.imagency.cn/mr/202610/24/6adc12c346149.png'
+  },
+  {
+    id: 'hvk-armor',
+    title: 'HVK-2防弹护甲',
+    desc: '精英特权、极限负重、安全无虞，优秀员工最好的勋章。',
+    price: 350000,
+    limit: 2,
+    bought: 0,
+    img: 'https://bee-reg-ab.imagency.cn/mr/202610/24/6adc1293bd496.png'
+  }
+];
+
+const solListEl = document.getElementById('solList');
+
+function renderShop() {
+  solListEl.innerHTML = '';
+
+  shopItems.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'sol-item';
+
+    /* 左：图片 */
+    const img = document.createElement('img');
+    img.className = 'sol-item-img';
+    img.src = item.img;
+    img.alt = item.title;
+
+    /* 中：标题 / 限购 / 描述 / 详情 */
+    const main = document.createElement('div');
+    main.className = 'sol-item-main';
+
+    const head = document.createElement('div');
+    head.className = 'sol-item-head';
+
+    const title = document.createElement('span');
+    title.className = 'sol-item-title';
+    title.textContent = item.title;
+
+    const limit = document.createElement('span');
+    limit.className = 'sol-item-limit';
+    limit.textContent = `限购：${item.bought}/${item.limit}`;
+
+    head.append(title, limit);
+
+    const desc = document.createElement('div');
+    desc.className = 'sol-item-desc';
+    desc.textContent = item.desc;
+
+    const link = document.createElement('div');
+    link.className = 'sol-item-link';
+    link.textContent = '物品详情》';
+
+    main.append(head, desc, link);
+
+    /* 右：价格 + 购买按钮 */
+    const right = document.createElement('div');
+    right.className = 'sol-item-right';
+
+    const price = document.createElement('div');
+    price.className = 'sol-item-price';
+    price.textContent = '🔘' + item.price.toLocaleString('en-US');
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'buy-btn';
+    btn.textContent = '购买';
+    btn.disabled = item.bought >= item.limit;
+
+    btn.addEventListener('click', () => {
+      if (item.bought >= item.limit) return;
+      item.bought += 1;                       // 购买次数 +1
+      limit.textContent = `限购：${item.bought}/${item.limit}`;
+      if (item.bought >= item.limit) {
+        btn.disabled = true;                  // 满额：变灰色且无法点击
+      }
+    });
+
+    right.append(price, btn);
+
+    row.append(img, main, right);
+    solListEl.appendChild(row);
+  });
+}
+
+renderShop();
+
 /* ===================== 网页图标 ===================== */
 const symbol = document.getElementById('icon-haavk');
 const NS = 'http://www.w3.org/2000/svg';
