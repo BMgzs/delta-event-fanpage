@@ -812,9 +812,9 @@ h1,h2,h3,h4,h5,h6,
   </div>
 </div>
 
-<!-- 背景音乐（点击登录后循环播放，音量100%） -->
-<audio id="bgm" loop preload="auto"
-  src="https://exclusive-apricot-anfcuhrl.edgeone.dev"></audio>
+<!-- 背景音乐：正常模式与控制台模式使用两条独立音轨，切换时保留各自播放进度 -->
+<audio id="bgm" loop preload="auto" src="https://mp3tourl.com/audio/1792902459804-c2f37339-5c9c-4d27-8508-ef8422d28124.mp3"></audio>
+<audio id="bgm-console" loop preload="auto" src="https://mp3tourl.com/audio/1792902533806-a148e791-1da3-40a9-af83-6d5958fa06c6.mp3"></audio>
 
 <!-- ===================== 顶部导航栏 ===================== -->
 <div class="topbar">
@@ -1146,17 +1146,107 @@ document.getElementById('attentionValue').textContent = attentionPoints;
 
 /* ===================== 登录界面 ===================== */
 const bgm = document.getElementById('bgm');
-bgm.loop   = true;                            // 循环播放
-bgm.volume = 1;                               // 音量 100%
+const bgmConsole = document.getElementById('bgm-console');
+
+bgm.loop = true;
+bgm.volume = 1;
+bgmConsole.loop = true;
+bgmConsole.volume = 1;
+
+let devtoolsOpen = false;
+let normalBgmTime = 0;
+let consoleBgmTime = 0;
+const bgmFadeDuration = 1200;
+
+function fadeAudio(audio, targetVolume, duration = bgmFadeDuration) {
+  if (!audio) return;
+  const startVolume = Number.isFinite(audio.volume) ? audio.volume : 0;
+  const startTime = performance.now();
+  cancelAnimationFrame(audio._fadeFrame);
+
+  const tick = () => {
+    const elapsed = performance.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    audio.volume = startVolume + (targetVolume - startVolume) * eased;
+
+    if (progress < 1) {
+      audio._fadeFrame = requestAnimationFrame(tick);
+    } else {
+      audio.volume = targetVolume;
+      if (targetVolume <= 0.01) {
+        audio.pause();
+      }
+    }
+  };
+
+  audio._fadeFrame = requestAnimationFrame(tick);
+}
+
+function playWithFade(audio, targetTime) {
+  if (!audio) return Promise.resolve();
+  if (Number.isFinite(targetTime)) {
+    audio.currentTime = targetTime;
+  }
+  audio.volume = 0;
+  const playPromise = audio.play().catch(() => {});
+  fadeAudio(audio, 1, bgmFadeDuration);
+  return playPromise;
+}
+
+function applyBgmMode(nextOpen) {
+  if (nextOpen === devtoolsOpen) return;
+  devtoolsOpen = nextOpen;
+
+  if (devtoolsOpen) {
+    normalBgmTime = Number.isFinite(bgm.currentTime) ? bgm.currentTime : 0;
+    consoleBgmTime = Number.isFinite(bgmConsole.currentTime) ? bgmConsole.currentTime : 0;
+
+    fadeAudio(bgm, 0, bgmFadeDuration);
+    if (bgmConsole.paused) {
+      playWithFade(bgmConsole, consoleBgmTime);
+    } else {
+      bgmConsole.currentTime = consoleBgmTime;
+      fadeAudio(bgmConsole, 1, bgmFadeDuration);
+    }
+  } else {
+    consoleBgmTime = Number.isFinite(bgmConsole.currentTime) ? bgmConsole.currentTime : 0;
+    normalBgmTime = Number.isFinite(bgm.currentTime) ? bgm.currentTime : 0;
+
+    fadeAudio(bgmConsole, 0, bgmFadeDuration);
+    if (bgm.paused) {
+      playWithFade(bgm, normalBgmTime);
+    } else {
+      bgm.currentTime = normalBgmTime;
+      fadeAudio(bgm, 1, bgmFadeDuration);
+    }
+  }
+}
+
+function detectDevtoolsState() {
+  const widthDelta = window.outerWidth - window.innerWidth;
+  const heightDelta = window.outerHeight - window.innerHeight;
+  const nextOpen = widthDelta > 160 || heightDelta > 160;
+  applyBgmMode(nextOpen);
+}
+
+window.addEventListener('resize', detectDevtoolsState);
+setInterval(detectDevtoolsState, 500);
 
 document.getElementById('loginBtn').addEventListener('click', () => {
   // 1. 隐藏登录层，进入正常页面
   document.getElementById('login').classList.add('hidden');
 
-  // 2. 开始循环播放背景音乐
-  bgm.play().catch(err => {
-    console.warn('音频播放被浏览器拦截：', err);
-  });
+  // 2. 开始循环播放背景音乐：如果控制台已打开，则播放控制台专用音轨，否则播放正常音轨
+  if (devtoolsOpen) {
+    playWithFade(bgmConsole, consoleBgmTime).catch(err => {
+      console.warn('控制台音频播放被浏览器拦截：', err);
+    });
+  } else {
+    playWithFade(bgm, normalBgmTime).catch(err => {
+      console.warn('音频播放被浏览器拦截：', err);
+    });
+  }
 });
 
 /* ===================== 顶部导航切换 ===================== */
